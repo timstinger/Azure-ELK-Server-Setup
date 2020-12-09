@@ -54,7 +54,7 @@ A summary of the access policies in place can be found in the table below.
 | Name     | Publicly Accessible | Allowed IP Addresses |
 |----------|---------------------|----------------------|
 | Jump Box | Yes                 | 71.201.84.154        |
-|          |                     | 		     |
+|          |                     | 		                  |
 |          |                     |                      |
 
 ### Elk Configuration
@@ -69,7 +69,7 @@ The playbook implements the following tasks:
 
 The following screenshot displays the result of running `docker ps` after successfully configuring the ELK instance.
 
-https://user-images.githubusercontent.com/69556296/100960652-55b54e80-34e6-11eb-8e8a-92666889f315.png
+https://github.com/timstinger/Azure-ELK-Server-Setup/blob/main/Images/Docker_PS_Following_ELK_Install.png
 
 ### Target Machines & Beats
 This ELK server is configured to monitor the following machines:
@@ -89,10 +89,3 @@ SSH into the control node and follow the steps below:
 - Copy the filebeat-config.yml file to /etc/filebeat/filebeat.yml on each VM
 - Update the ansible hosts file to include the private IPs of the various web servers where Filebeat is to be installed that will send data to the ELK server.  These will be included in the webservers section of the ansible hosts file.  Create a separate [elk] section and provide the private IP to specify where to install ELK.
 - Run the playbook, and navigate to http://<ELK Server public IP>:5601/app/kibana to check that the installation worked as expected.
-
-_TODO: Answer the following questions to fill in the blanks:_
-- _Which file is the playbook? Where do you copy it?_
-- _Which file do you update to make Ansible run the playbook on a specific machine? How do I specify which machine to install the ELK server on versus which to install Filebeat on?_
-- _Which URL do you navigate to in order to check that the ELK server is running?
-
-_As a **Bonus**, provide the specific commands the user will need to run to download the playbook, update the files, etc._
