@@ -1,0 +1,97 @@
+---
+- name: Install Docker, DVWA Container on Web Servers
+  hosts: webservers
+  become: true
+  tasks:
+  - name: Install Docker.io (state = present is optional)
+    apt:
+      force_apt_get: yes
+      update_cache: yes
+      name: docker.io
+      state: present
+  - name: Install Python3
+    apt:
+      name: python3-pip
+      state: present
+  - name: Install Docker via PIP
+    pip:
+      name: docker
+      state: present
+  - name: Download Container
+    docker_container:
+      name: dvwa
+      image: cyberxsecurity/dvwa
+      state: started
+      published_ports: 80:80
+  - name: Enable Docker Service
+    systemd:
+      name: docker
+      enabled: yes
+
+. . .
+
+---
+- name: Install Docker & ELK Container on ELK Server
+  hosts: elk
+  become: true
+  tasks:
+  - name: Sets Memory Usage (state = present is optional)
+    ansible.posix.sysctl:
+        name: vm.max_map_count
+        value: '262144'
+        state: present
+        reload: yes
+  - name: Install Docker
+    apt:
+      force_apt_get: yes
+      update_cache: yes
+      name: docker.io
+      state: present
+  - name: Install Python3
+    apt:
+      name: python3-pip
+      state: present
+  - name: Install Docker via PIP
+    pip:
+      name: docker
+      state: present
+  - name: Download Elk-Docker Container
+    docker_container:
+      name: elk
+      image: sebp/elk:761
+      state: started
+      published_ports:
+        - 5601:5601
+        - 9200:9200
+        - 5044:5044
+  - name: Enable Docker Service
+    systemd:
+      name: docker
+      enabled: yes
+
+. . .
+
+---
+- name: Install and Launch Filebeat on Web Servers
+  hosts: webservers
+  become: yes
+  tasks:
+  - name: Downlnoad Filebeat
+    command: curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.4.0-amd64.deb
+
+  - name: Install Filebeat
+    command: dpkg -i filebeat-7.4.0-amd64.deb
+
+  - name: Drop in Filebeat Configuration File
+    copy:
+      src: /etc/ansible/playbooks/filebeat-config.yml
+      dest: /etc/filebeat/filebeat.yml
+
+  - name: Enable and Configure System Module
+    command: filebeat modules enable system
+
+  - name: Setup Filebeat
+    command: filebeat setup
+
+  - name: Start the Filebeat Service
+    command: service filebeat start

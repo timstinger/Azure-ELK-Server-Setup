@@ -4,11 +4,9 @@ The files in this repository were used to configure the network depicted below.
 
 https://github.com/timstinger/Azure-ELK-Server-Setup/issues/1#issuecomment-739413722
 
-These files have been tested and used to generate a live ELK deployment on Azure. They can be used to either recreate the entire deployment pictured above. Alternatively, select portions of the YAML playbook file may be used to install only certain pieces of it, such as Filebeat.
+These files have been tested and used to generate a live ELK deployment on Azure. They can be used to either recreate the entire deployment pictured above. Alternatively, select portions of the elk_Server_Infrastructure YAML file may be used to install only certain pieces of it, such as Filebeat.
 
-  - filebeat-playbook.yml
-  - install-elk.yml
-  - filebeat-config.yml
+  - elk_Server_Infrastructure.yml
  
 This document contains the following details:
 - Description of the Topology
@@ -24,15 +22,15 @@ This document contains the following details:
 The main purpose of this network is to expose a load-balanced and monitored instance of DVWA, the D*mn Vulnerable Web Application.
 
 Load balancing ensures that the application will be highly available, in addition to restricting access to the network.
-- Load balancers deal with availability and confidentiality of data.  This gets accomplished through distributing incoming data across multiple servers rather than overwhelm one server with the influx of data.  The confidentiality of the data is obtained through preventing users from accessing the network.  
-- The advantage of using a jump box is you have one system that can provide the setup of all new systems in an environment.  One specific benefit of this is we have a central repository for configuration files.  Without a central repository we could lose the configuration for certain machines, which would force use to re-create the configuration and that could take a lot of time.  
+- Load balancers deal with availability through distributing incoming data across multiple servers rather than overwhelming one server with all of the data.
+- The advantage of using a jump box is you have one system that can provide the setup and configuration of all new systems in an environment.  One specific benefit of this is we have a central repository for configuration files.  Without a central repository we could lose the configuration for certain machines, which would force use to re-create the configuration and that could take a lot of time.  Also from a security perspective, by having one jump box perform all of the configuration, that allows for stricter firewall, or network security group, rules that will prevent unauthorized access to the machines the jump box configures.
 
 Integrating an ELK server allows users to easily monitor the vulnerable VMs for changes to the network and system logs.
-- Filebeat is looking at the system logs and allows us to specifically monitor certain logs rather than dealing with a vast array of logs that may not be as significant.  By utilizing Filebeat we can get a clearer look at the important logs and so we can potentially respond quicker.
+- Filebeat is looking at the system logs and allows us to specifically monitor certain logs rather than dealing with a vast array of logs that may not be as significant.  By utilizing Filebeat we can get a quicker and clearer look at the important logs, allowing for a faster response to potentially dangerous situations.
 - Metricbeat is focused on collecting metrics about the operating system and services that are running on a server.  With this data in hand we can monitor the servers for any abhorrent behavior and make changes preventing any catastrophic situations.
 
 The configuration details of each machine may be found below.
-_Note: Use the [Markdown Table Generator](http://www.tablesgenerator.com/markdown_tables) to add/remove values from the table_.
+
 
 | Name     | Function | IP Address | Operating System |
 |----------|----------|------------|------------------|
@@ -45,7 +43,7 @@ _Note: Use the [Markdown Table Generator](http://www.tablesgenerator.com/markdow
 
 The machines on the internal network are not exposed to the public Internet. 
 
-Only the jump box and ELK server can accept connections from the Internet. Access to these machines is only allowed from the following IP addresses:
+Only the jump box can accept connections from the Internet. Access to this machine is only allowed from the following IP addresses:
 - 71.201.84.154/32
 
 Machines within the network can only be accessed by SSH.
@@ -56,16 +54,16 @@ A summary of the access policies in place can be found in the table below.
 | Name     | Publicly Accessible | Allowed IP Addresses |
 |----------|---------------------|----------------------|
 | Jump Box | Yes                 | 71.201.84.154        |
-| ELK      | Yes                 | 71.201.84.154        |
+|          |                     | 		     |
 |          |                     |                      |
 
 ### Elk Configuration
 
-Ansible was used to automate configuration of the ELK machine. No configuration was performed manually, which is advantageous because there may be situations that re-deployming of multiple VMs.  Rather than force an analyst to spend hours manually setting up multiple VMs with the same configuration manually, automation allows this to occur much quicker.  As a result, business is not hindered and the analyst is freed up to move on to other tasks.  In addition, automation ensures that we have the same configuration on all of the systems in an environment, which provides for better security overall.
+Ansible was used to automate configuration of the ELK machine. No configuration was performed manually, which is advantageous because there may be situations that require redeployment of multiple VMs.  Rather than force an analyst to spend hours manually setting up multiple VMs with the same configuration manually, automation allows this to occur much quicker.  As a result, business is not hindered and the analyst is freed up to move on to other tasks.  In addition, automation ensures that we have the same configuration on all of the systems in an environment, which leads to better overall security.
 
 The playbook implements the following tasks:
 - Setup the VM to utilize more memory, which provides better performance
-- Download and Install Docker, Python3
+- Download and Install Docker and Python3
 - Download and Install the ELK Docker Container
 - Enable the Docker service
 
@@ -79,16 +77,16 @@ This ELK server is configured to monitor the following machines:
 - Web-4   10.0.0.14
 
 We have installed the following Beats on these machines:
-- Filebeat
+- ELK Server	Filebeat
 
 These Beats allow us to collect the following information from each machine:
-- Filebeat is used to capture log data from the webservers.  However, since we didn't specify the log files we are interested in, we can expect Filebeat to choose the log files that will be sent to our ELK server.  As a result, we can expect to see logs from the /var/log directory, specifically auth.log and syslog, which is what we see.  The former, auth.log, monitors system authentication, while the latter is focused maintains logs from applications and services.
+- Filebeat is used to capture log data from the web servers.  However, since we didn't specify the log files we are interested in, we can expect Filebeat to choose the log files that will be sent to our ELK server.  As a result, we can expect to see logs from the /var/log directory, specifically auth.log and syslog, which is what we see.  The former, auth.log, monitors system authentication, while the latter maintains logs from applications and services.
 
 ### Using the Playbook
 In order to use the playbook, you will need to have an Ansible control node already configured. Assuming you have such a control node provisioned:  
 
 SSH into the control node and follow the steps below:
-- Copy the filebeat-config.yml file to /etc/filebeat/filebeat.yml.*** FIX
+- Copy the filebeat-config.yml file to /etc/filebeat/filebeat.yml on each VM
 - Update the ansible hosts file to include the private IPs of the various web servers where Filebeat is to be installed that will send data to the ELK server.  These will be included in the webservers section of the ansible hosts file.  Create a separate [elk] section and provide the private IP to specify where to install ELK.
 - Run the playbook, and navigate to http://<ELK Server public IP>:5601/app/kibana to check that the installation worked as expected.
 
